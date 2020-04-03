@@ -1,0 +1,97 @@
+<?php
+
+$firstName = $_POST['fname'];
+$lastName = $_POST['lname'];
+$email = $_POST['email'];
+$userName = $_POST['email']; //use email as username.
+$password = $_POST['pwd'];
+$password2 = $_POST['pwd2'];
+$isActive = boolval(true);
+$id = 0;
+
+
+if($password != $password2){
+    echo "<script>";
+   echo "alert('Passwords do not match. Please try again!');";
+   echo "window.location.href='Registration.php';";
+   echo "</script>";
+}else if(strlen($password) < 8){
+    echo "<script>";
+    echo "alert('Password length must be at least 8 characters long. Please try again!');";
+    echo "window.location.href='Registration.php';";
+    echo "</script>";
+}else if (!preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $password)){
+    echo "<script>";
+    echo "alert('Password must contain combination of letter and number. Please try again!');";
+    echo "window.location.href='Registration.php';";
+    echo "</script>";
+}else if(strpos($email, 'southernct') == false){
+    echo "<script>";
+    echo "alert('You need southernct.edu email address to get regsitered!');";
+    echo "window.location.href='Registration.php';";
+    echo "</script>";
+}else if(!(preg_match('/[A-Za-z]/', $firstName) && preg_match('/[A-Za-z]/', $lastName)))
+{
+    echo "<script>";
+    echo "alert('Invalid input for name. Please try again!');";
+    echo "window.location.href='Registration.php';";
+    echo "</script>";
+}else if(!empty($email)){
+        
+        $db_host = 'localhost'; // Server Name
+        $db_user = 'root'; // Username
+        $db_pass = ''; // Password
+        $db_name = 'library_management_1'; // Database Name
+
+        $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+
+        $CheckEmail = "SELECT email from users where email = ? limit 1";
+        $insert = "INSERT into users(First_Name, Last_Name, Email, Username, Password) 
+        VALUES (?,?,?,?,?)";
+
+$password = md5($password);
+
+        //Prepare statement
+        $stmt = $conn->prepare($CheckEmail);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->bind_result($email);
+        $stmt->store_result();
+        $rnum = $stmt->num_rows;
+
+        if ($rnum==0){
+            $stmt->close();
+
+            $stmt = $conn->prepare($insert);
+            if($stmt)
+                 {
+                        
+                        $stmt->bind_param("sssss", $firstName, $lastName, $email,$userName, $password);
+                        $stmt->execute();
+                    // echo "You have been registered. Your email address is your username: ".$userName;
+                    // $_SESSION['message'] = "You are now logged in. Your email address is your username.";
+                    session_start();
+                        $_SESSION['email'] = $userName;
+                      
+                }
+
+                echo "<script>
+            alert('You have been registered. Your username is your email address. Please log in to continue!');
+            window.location.href='login.php';
+            </script>";            
+            
+    
+
+        }else{
+                
+            echo "<script>
+            alert('This email address has already been used. Please check your email address!');
+            window.location.href='Registration.php';
+            </script>";            
+            }
+           
+    }
+    $stmt->close();
+    $conn->close();   
+
+?>

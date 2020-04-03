@@ -1,0 +1,195 @@
+<?php
+session_start();
+?>
+
+<?php
+$db_host = 'localhost'; // Server Name
+$db_user = 'root'; // Username
+$db_pass = ''; // Password
+$db_name = 'library_management_1'; // Database Name
+
+$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+if (!$conn) {
+	die ('Failed to connect to MySQL: ' . mysqli_connect_error());	
+}
+?>
+
+<?php
+
+
+$tempUser = "";
+$showLogIn = boolval(true);
+$showLogOut = boolval(true);
+
+
+if (isset($_SESSION['username'])) {
+  $temp=$_SESSION['username'];
+  $q=mysqli_query($conn,("SELECT First_Name FROM users WHERE UserName = '$temp' "));
+  $qID=mysqli_query($conn,("SELECT User_ID FROM users WHERE UserName = '$temp' "));
+  $tempUserArray = mysqli_fetch_array($q);
+  $tempUserArrayID = mysqli_fetch_array($qID);
+  $tempUser = $tempUserArray['First_Name'];
+
+  $tempUserID = $tempUserArrayID['User_ID'];
+  $showLogIn = false;
+  $showLogOut = true;
+
+}else{
+  $tempUser = "";
+  $showLogIn = true;
+  $showLogOut = false;
+}
+?>
+
+
+<?php
+if (isset($_SESSION['username'])) {
+?>
+
+<?php
+echo $_SESSION["username"];
+$tempUser1 = $_SESSION["username"];
+
+$query = mysqli_query($conn,("SELECT * FROM history_borrow_return WHERE User_ID = $tempUserID"));
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Your Borrowed Books</title>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!--Bootsrap 4 CDN-->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<!--Fontawesome CDN-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+<!--Custom styles-->
+<link rel="stylesheet" type="text/css" href="SearchResults.css">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <a class="navbar-brand" href="home.php"><img src="Logo3.png" style="width:130px;height:70px;"></img></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="home.php">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="BookSearch.php">Search Books</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.southernct.edu/">SCSU Home</a>
+      </li>
+
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="BookPostForm.php">Post Books</a>
+      </li>
+
+      <?php if($showLogIn){?>
+      <li class="nav navbar-nav navbar-right">
+      <a class="nav-button" href="LogIn.php"><button  class="button button1">LogIn</button></a>
+      </li>
+      <?php } ?>
+      
+      <?php if($showLogIn){?>
+      <li class="nav navbar-nav navbar-right">
+        <a class="nav-button" href="Registration.php"><button  class="button button1">Register Now</button></a>
+        <!--<a class="nav-button" href="LogIn.php"><button  class="button button1">LogIn</button></a> -->
+        <!--<button  class="button button1" href="LogIn.php">Register Now</button> -->
+      </li>
+      <?php } ?>
+
+      <?php if($showLogOut){?>
+      <li class="nav navbar-nav navbar-right">
+      <a button type="button" class="btn btn-warning" href="logout.php">Logout</button></a>
+      </li>
+      <?php } ?>
+
+    </ul>
+
+  </div>  
+</nav>
+<!--Above is for the nav bar and links only-->
+
+
+</head>
+<body>
+<?php if($showLogOut){?>
+	<h1><b>Here is your book borrow return history:</h1>
+	<table class="data-table">
+		<thead>
+			<tr>
+				<th>NO.</th>
+				<th>ISBN</th>
+				<th>Borrow Date</th>
+				<th>Return Date</th>
+				
+			</tr>
+		</thead>
+		<tbody>
+
+		<?php
+// the message
+$msg = "I would like to buy your book";
+
+// use wordwrap() if lines are longer than 70 characters
+$msg = wordwrap($msg,70);
+
+
+?>
+
+		<?php
+		$no 	= 1;
+		$total 	= 0;
+	//	$temp = '';
+		
+		while ($row = mysqli_fetch_array($query))
+		{
+
+			echo '<tr>' ?>
+				<?php echo	'<td>'.$no.'</td>'; ?>
+				<?php echo	'<td>'.$row['ISBN'].'</td>'; ?>
+				<?php echo	'<td>'.$row['Date_Of_Borrow'].'</td>'; ?>
+				<?php echo	'<td>'.$row['Date_Of_Return'].'</td>'; ?>
+												
+					<?php	echo '</tr>';
+		
+			$no++;
+		}?>
+		</tbody>
+		<tfoot>
+			
+			
+				
+			
+		</tfoot>
+	</table>
+	<h2><i position="center";>You have total <?=number_format($no-1)?> books in your history.</i><h2>
+	<br><br>
+   <button><a href="BookSearch.php" >Search Books</a> </button>
+        <button><a href="WelcomeUser.php" >My Profile</a> </button>
+        <?php } ?>
+        <?php
+}else{
+echo "<script>";
+echo "alert('You have to log in first to view your books!');";
+echo "window.location.href='LogIn.php';";
+echo "</script>";
+}
+?>
+
+
+</body>
+</html>
+

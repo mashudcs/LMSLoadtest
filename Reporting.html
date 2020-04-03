@@ -1,0 +1,177 @@
+<?php
+$db_host = 'localhost'; // Server Name
+$db_user = 'root'; // Username
+$db_pass = ''; // Password
+$db_name = 'Library_Management_1'; // Database Name
+
+$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+if (!$conn) {
+	die ('Failed to connect to MySQL: ' . mysqli_connect_error());	
+}
+
+if(isset($_POST['Register'])){
+    session_start();
+    $firstName = mysqli_real_escape_string($conn, $_POST['fname']);
+    $lastName = mysqli_real_escape_string($conn, $_POST['lname']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $userName = mysqli_real_escape_string($conn, $_POST['email']); //use email as username.
+    $password = mysqli_real_escape_string($conn, $_POST['pwd']);
+    $password2 = mysqli_real_escape_string($conn, $_POST['pwd2']);
+    
+    //verify that re-entered pw matches
+    if($password == $password2){
+        $password = md5($password); //hash password before storing for security reason
+       /** $sql = "INSERT INTO users('First_Name', 'Last_Name', 'Email', 'ID', 'UserName', 'Password', 'Is_Active') VALUES ($firstName, $lastName, $email,0,$userName, $password,true)"; */
+       $sql = "INSERT INTO abc(name) VALUES($firstName)";
+       echo "kkc";
+       mysqli_query($conn, $sql);
+        $_SESSION['message'] = "You are now logged in. Your email address is your username.";
+        $_SESSION['email'] = $userName;
+        header("location: HomeLoggedIn.php"); //directing to book search page
+    }else{
+        $_SESSION['message'] = "Passwords do not match";
+    }
+
+}
+?>
+
+<?php
+
+$tempUser = "";
+$showLogIn = boolval(true);
+$showLogOut = boolval(true);
+
+if (isset($_SESSION['username'])) {
+  $temp=$_SESSION['username'];
+  $q=mysqli_query($conn,("SELECT First_Name FROM users WHERE UserName = '$temp' "));
+  $tempUserArray = mysqli_fetch_array($q);
+  $tempUser = $tempUserArray['First_Name'];
+  $showLogIn = false;
+  $showLogOut = true;
+
+}else{
+  $tempUser = "";
+  $showLogIn = true;
+  $showLogOut = false;
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login</title>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!--Bootsrap 4 CDN-->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<!--Fontawesome CDN-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+<!--Custom styles-->
+<link rel="stylesheet" type="text/css" href="Styl0e.css">
+<!--Custom styles-->
+<link rel="stylesheet" type="text/css" href="Home.css">
+</head>
+
+<script src='https://code.jquery.com/jquery-3.3.1.min.js'>
+  </script>
+
+  <script>
+    $('.message a').click(function({
+    $('form').animate ({height:"toggle", opacity:"toggle"}, "slow")
+    });
+  </script>
+
+
+<body style="background-color:powderblue;">
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <a class="navbar-brand" href="home.php"><img src="logo3.png" style="width:70px;height:70px;"></img></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="home.php">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="BookSearch.php">Search Books</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.southernct.edu/" target="_blank">SCSU Home</a>
+      </li>
+
+     
+
+      <?php if($showLogIn){?>
+      <li class="nav navbar-nav navbar-right">
+      <a button type="button" class="btn btn-success" href="LogIn.php">LogIn</button></a>
+      </li>
+      <?php } ?>
+      
+      <?php if($showLogIn){?>
+      <li class="nav navbar-nav navbar-right">
+      <a button type="button" class="btn btn-primary" href="Registration.php">Register Now</button></a>
+      </li>
+      <?php } ?>
+
+      <?php if($showLogOut){?>
+      <li class="nav navbar-nav navbar-right">
+      <a class="nav-button" href="logout.php"><button  class="button button1">Logout</button></a>
+      </li>
+      <?php } ?>
+
+    </ul>
+
+  </div>  
+</nav>
+<!--Above is for the nav bar and links only-->
+<p1>Please fill the following information:  (* = Required fields)</p1>
+
+
+
+<div class="container">
+<div class="d-flex justify-content-center h-500">
+    <div class="card">
+        <div class="card-header">
+            <h3>Search by department</h3>
+        </div>
+        <div class="card-body">
+
+<form method="post" action="BookSearchResultsDisplay.php">
+  <select name="searchDept">
+    <option value="Physics">Physics</option>
+    <option value="History">History</option>
+    <option value="Nursing">Nursing</option>
+    <option value="Arts">Arts</option>
+    <option value="Software">Software</option>
+  </select>
+  <br><br>
+  <input type="submit" value="Search"/>
+</form>
+
+
+
+      </div>
+      
+	        <input type="text" name="searchKey">
+          <a href="ReportGenerator.php" class="btn btn-success">LogIn</button></a>
+
+      </form>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        
+</form>
+
+<div class="jumbotron text-center" style="margin-bottom:0">
+<p>(c) Book4Book</p>
+</div>
+</body>
+</html>

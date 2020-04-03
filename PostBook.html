@@ -1,0 +1,74 @@
+<?php
+$db_host = 'localhost'; // Server Name
+$db_user = 'root'; // Username
+$db_pass = ''; // Password
+$db_name = 'library_management_1'; // Database Name
+
+$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+if (!$conn) {
+	die ('Failed to connect to MySQL: ' . mysqli_connect_error());	
+}
+
+if(isset($_POST['Register'])){
+    session_start();
+    $firstName = mysqli_real_escape_string($conn, $_POST['fname']);
+    $lastName = mysqli_real_escape_string($conn, $_POST['lname']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $userName = mysqli_real_escape_string($conn, $_POST['email']); //use email as username.
+    $password = mysqli_real_escape_string($conn, $_POST['pwd']);
+    $password2 = mysqli_real_escape_string($conn, $_POST['pwd2']);
+    
+    //verify that re-entered pw matches
+    if($password == $password2){
+        $password = md5($password); //hash password before storing for security reason
+       /** $sql = "INSERT INTO users('First_Name', 'Last_Name', 'Email', 'ID', 'UserName', 'Password', 'Is_Active') VALUES ($firstName, $lastName, $email,0,$userName, $password,true)"; */
+       $sql = "INSERT INTO abc(name) VALUES($firstName)";
+       echo "kkc";
+       mysqli_query($conn, $sql);
+        $_SESSION['message'] = "You are now logged in. Your email address is your username.";
+        $_SESSION['email'] = $userName;
+        header("location: HomeLoggedIn.php"); //directing to book search page
+    }else{
+        $_SESSION['message'] = "Passwords do not match";
+    }
+
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>
+   Registration
+  </title>
+  <link rel="stylesheet" href="style.css"
+</head>
+
+<script src='https://code.jquery.com/jquery-3.3.1.min.js'>
+  </script>
+
+  <script>
+    $('.message a').click(function({
+    $('form').animate ({height:"toggle", opacity:"toggle"}, "slow")
+    });
+  </script>
+
+
+<body style="background-color:powderblue;">
+
+<h1>Please fill the following information:  (* = Required fields)</h1>
+
+<form  action="Register.php" method="post" class="registration-form">
+		  <input type="text" name="fname" placeholder="First Name" required>* <br><br>
+          <input type="text" name="lname" placeholder="Last Name" required>* <br><br>
+          <input type="password" name="pwd" placeholder="Password" required>* <br><br>
+          <input type="password" name="pwd2" placeholder="Re-Enter your password" required>* <br><br>
+          <input type="email" name="email" placeholder="Email" required>* <br><br><br>
+          <input type="submit" name="Register" value="Register">
+		  <br>
+</form>
+
+<button><a href="LogIn.php" >LogIn</a> </button>
+
+</body>
+</html>

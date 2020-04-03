@@ -1,0 +1,85 @@
+<?php
+
+$firstName = $_POST['fname'];
+$lastName = $_POST['lname'];
+$email = $_POST['email'];
+$userName = $_POST['email']; //use email as username.
+$password = $_POST['pwd'];
+$password2 = $_POST['pwd2'];
+$isActive = boolval(true);
+$id = 0;
+
+if(!empty($email)){
+$db_host = 'localhost'; // Server Name
+$db_user = 'root'; // Username
+$db_pass = ''; // Password
+$db_name = 'library_management_1'; // Database Name
+
+$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+
+$CheckEmail = "SELECT email from users where email = ? limit 1";
+$insert = "INSERT into users(First_Name, Last_Name, Email, ID, UserName, Password, Is_Active) 
+VALUES (?,?,?,?,?,?,?)";
+
+//Prepare statement
+$stmt = $conn->prepare($CheckEmail);
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$stmt->bind_result($email);
+$stmt->store_result();
+$rnum = $stmt->num_rows;
+
+if($password == $password2){
+    $password = md5($password); //Hashing the user name
+
+if ($rnum==0){
+    $stmt->close();
+
+    $stmt = $conn->prepare($insert);
+    if($stmt){
+    $stmt->bind_param("sssissi", $firstName, $lastName, $email,$id,$userName, $password, $isActive);
+    $stmt->execute();
+   // echo "You have been registered. Your email address is your username: ".$userName;
+   // $_SESSION['message'] = "You are now logged in. Your email address is your username.";
+   session_start();
+    $_SESSION['email'] = $userName;
+    header("location: Index.php"); 
+   
+   //directing to book search or sell page
+    echo "<script>
+    alert('By clicking OK button below, you agree to our term and use of this website that you--as buyer and/or seller are 
+    responsible for any taxation, monetory, and exchange of goods. We are not responsible and liable for any harm you may experience
+    due to our website service. Thank you for using Book4Book.');
+    window.location.href='SellAndBuyBooks.php';
+  
+    </script>";   
+  //  $_SESSION['message'] = "You are now logged in. Your email address is your username.";
+   // $_SESSION['email'] = $userName;  
+    
+    }
+    
+
+}else{
+    echo "Something went wrong. Please contact administrator.";
+    }
+    }else{
+         
+    echo "<script>
+    alert('This email address has already been used. Please check your email address!');
+    window.location.href='Registration.php';
+    </script>";
+     
+    }
+    $stmt->close();
+    $conn->close();
+
+}else{
+
+    echo "<script>
+alert('There are no fields to generate a report');
+window.location.href='Registration.php';
+</script>";
+ 
+}
+
+?>

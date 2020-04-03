@@ -1,0 +1,58 @@
+<?php
+
+$db_host = 'localhost'; // Server Name
+$db_user = 'root'; // Username
+$db_pass = ''; // Password
+$db_name = 'library_management_1'; // Database Name
+
+$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+// LOGIN USER
+if (isset($_POST['login_user'])) {
+  session_start();
+  $username = mysqli_real_escape_string($conn, $_POST['username']);
+  $password = mysqli_real_escape_string($conn, $_POST['password']);
+  
+
+    $password = md5($password);
+    
+  	$query = "SELECT * FROM users WHERE userName='$username' AND Password='$password'";
+      $results = mysqli_query($conn, $query);
+     
+     
+
+  if (mysqli_num_rows($results)==false) {
+      $_SESSION['username'] = $username;
+      
+	  
+     
+
+
+     //$_POST['username'] = $username;
+  	  $_SESSION['success'] = "You are now logged in";
+  	 header('location: WelcomeUser.php');
+  	}else {
+      echo "<script>";
+    echo "alert('Username and password combination is incorrect. Please try again!');";
+    echo "window.location.href='LogIn.php';";
+    echo "</script>";
+       
+  	}
+  }
+
+
+?>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>
+   Registration
+  </title>
+  <link rel="stylesheet" href="style.css"
+</head>
+
+<body>
+  <img src="oops.jpg"></img>
+</body>
+</html>

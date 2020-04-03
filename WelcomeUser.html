@@ -1,0 +1,188 @@
+<?php
+session_start();
+?>
+
+<?php
+$db_host = 'localhost'; // Server Name
+$db_user = 'root'; // Username
+$db_pass = ''; // Password
+$db_name = 'library_management_1'; // Database Name
+
+$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+if (!$conn) {
+die ('Failed to connect to MySQL: ' . mysqli_connect_error());	
+}
+?>
+
+<?php
+if($_SESSION["username"]) {
+?>
+Welcome <?php echo $_SESSION["username"]; ?>. Click here to <a href="logout.php" tite="Logout">Logout.
+<?php
+}else { echo "<h1>Please login first .</h1>";}
+?>
+
+<?php
+$tempUser = "";
+$showLogIn = boolval(true);
+$showLogOut = boolval(true);
+
+if (isset($_SESSION['username'])) {
+  $temp=$_SESSION['username'];
+  $q=mysqli_query($conn,("SELECT First_Name FROM users WHERE UserName = '$temp' "));
+  $qRole=mysqli_query($conn,("SELECT role FROM users WHERE UserName = '$temp' "));
+  $tempUserArray = mysqli_fetch_array($q);
+  $tempRoleArray = mysqli_fetch_array($qRole);
+  $tempUser = $tempUserArray['First_Name'];
+  $tempRole = $tempRoleArray['role'];
+  $showLogIn = false;
+  $showLogOut = true;
+
+}else{
+  $tempUser = "";
+  $showLogIn = true;
+  $showLogOut = false;
+}
+?>
+
+
+
+<!--Log in page-->
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome!</title>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!--Bootsrap 4 CDN-->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<!--Fontawesome CDN-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+<!--Custom styles-->
+<link rel="stylesheet" type="text/css" href="Style.css">
+<!--Custom styles-->
+<link rel="stylesheet" type="text/css" href="Home.css">
+
+</head>
+<body>
+
+<!--Following is for the nav bar and links only-->
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <a class="navbar-brand" href="home.php"><img src="Logo3.png" style="width:70px;height:70px;"></img></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" class="fas fa-key" href="home.php">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="BookSearch.php">Search Books</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.southernct.edu/" target="_blank">SCSU Home</a>
+      </li>
+
+      <?php if($showLogIn){?>
+      <li class="nav navbar-nav navbar-right">
+      <a class="nav-button" href="LogIn.php"><button  class="button button1">LogIn</button></a>
+      </li>
+      <?php } ?>
+      
+      <?php if($showLogIn){?>
+      <li class="nav navbar-nav navbar-right">
+        <a class="nav-button" href="Registration.php"><button  class="button button1">Register Now</button></a>
+        <!--<a class="nav-button" href="LogIn.php"><button  class="button button1">LogIn</button></a> -->
+        <!--<button  class="button button1" href="LogIn.php">Register Now</button> -->
+      </li>
+      <?php } ?>
+
+      <?php if($showLogOut){?>
+      <li class="nav navbar-nav navbar-right">
+      <a button type="button" class="btn btn-warning" href="logout.php">Logout</button></a>
+      </li>
+      <?php } ?>
+
+    </ul>
+
+  </div>  
+</nav>
+<!--Above is for the nav bar and links only-->
+
+<!--Following is for the nav bar and links only-->
+<nav class="navbar navbar-light">
+
+      <!--Greeting Purpose Only!!!!-->
+      <br>   
+     
+           <?php
+            $t = date("H");
+
+            if ($t < "10") {
+                echo "Good morning ".$tempUser;
+                
+                
+            } elseif ($t < "20") {
+                echo "Good afternoon ".$tempUser;
+                
+            } else {
+                echo "Good evening ".$tempUser;
+                
+            }
+            ?>
+       
+      <!--^Greeting Purpose Only!!!!-->
+</nav>
+
+
+<div class="container">
+<div class="d-flex justify-content-center h-40 w-100">
+<div class="card">
+    <div class="card-header">
+        <h3>Hi, <?php echo $tempUser; ?></h3>
+        <h4> Choose what you would like to do:</h4s>
+    </div>
+    <div class="card-body">
+    <div class="form-group">
+    <li class="nav navbar-nav navbar-right">
+           
+            <a class="btn btn-warning" href="BookSearch.php" >Search Books</a><br>
+			<?php if($tempRole=='Administrator'){ ?>
+            <a class="btn btn-danger" href="BookPostForm.php" >Post New Books to Database</a><br>
+			<?php } ?>
+
+      <?php if($tempRole=='Administrator'){ ?>
+            <a class="btn btn-success" href="updateBookTotalQuantityForm.php" >Update Existing Book Quantity</a><br>
+			<?php } ?>
+
+      
+      <?php if($tempRole!='Administrator'){ ?>
+
+            <a class="btn btn-primary" href="ShowMyBooks.php" >Show Books I Borrowed</a>
+            </div>
+          
+            <?php } ?>
+            
+        
+        </div>
+        </li>
+    </div>
+</div>
+</div>
+</div>
+
+<button type="button" class="btn btn-secondary btn-lg btn-block">
+  © 2019 Book<i>4</i>Book (aka Book<i>for</i>Book). <br>
+  All rights reserved.<br>
+</button>
+
+
+</body>
+</html>
